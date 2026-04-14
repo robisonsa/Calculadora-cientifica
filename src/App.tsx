@@ -141,20 +141,20 @@ export default function App() {
   const displayString = tokens.map(t => t.display).join('');
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-[1024px] h-[768px] flex flex-col">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 lg:p-6">
+      <div className="w-full max-w-[1024px] min-h-[100dvh] lg:min-h-0 lg:h-[768px] flex flex-col">
         
         {/* Header */}
-        <header className="flex justify-between items-center mb-6 shrink-0">
-          <div className="flex items-center gap-3 font-bold tracking-tight text-xl">
-            <div className="w-8 h-8 bg-bento-accent rounded-lg flex items-center justify-center text-white">Σ</div>
+        <header className="flex justify-between items-center mb-4 lg:mb-6 shrink-0 pt-2 lg:pt-0">
+          <div className="flex items-center gap-2 lg:gap-3 font-bold tracking-tight text-lg lg:text-xl">
+            <div className="w-7 h-7 lg:w-8 lg:h-8 bg-bento-accent rounded-lg flex items-center justify-center text-white text-sm lg:text-base">Σ</div>
             <span>K-ALC PRO</span>
           </div>
           <div className="bg-bento-card border border-bento-border p-1 rounded-full flex gap-1">
             <button
               onClick={() => setIsDarkMode(true)}
               className={cn(
-                "px-4 py-1.5 rounded-full text-xs font-semibold transition-colors",
+                "px-3 lg:px-4 py-1 lg:py-1.5 rounded-full text-[10px] lg:text-xs font-semibold transition-colors",
                 isDarkMode ? "bg-bento-accent text-white" : "text-bento-text-sec hover:text-bento-text"
               )}
             >
@@ -163,7 +163,7 @@ export default function App() {
             <button
               onClick={() => setIsDarkMode(false)}
               className={cn(
-                "px-4 py-1.5 rounded-full text-xs font-semibold transition-colors",
+                "px-3 lg:px-4 py-1 lg:py-1.5 rounded-full text-[10px] lg:text-xs font-semibold transition-colors",
                 !isDarkMode ? "bg-bento-accent text-white" : "text-bento-text-sec hover:text-bento-text"
               )}
             >
@@ -173,46 +173,46 @@ export default function App() {
         </header>
 
         {/* Main Grid */}
-        <main className="grid grid-cols-[280px_1fr_240px] grid-rows-[180px_1fr] gap-5 flex-1 min-h-0">
+        <main className="flex flex-col lg:grid lg:grid-cols-[280px_1fr_240px] lg:grid-rows-[180px_1fr] gap-4 lg:gap-5 flex-1 lg:min-h-0 pb-6 lg:pb-0">
           
           {/* Display Area */}
-          <section className="col-span-2 bg-bento-card border border-bento-border rounded-3xl p-8 flex flex-col justify-end items-end relative overflow-hidden">
-            <div className="absolute top-6 left-6 bg-bento-accent-soft text-bento-accent px-3 py-1 rounded-full text-xs font-bold uppercase">
+          <section className="order-1 lg:order-none lg:col-span-2 bg-bento-card border border-bento-border rounded-3xl p-5 lg:p-8 flex flex-col justify-end items-end relative overflow-hidden min-h-[140px] lg:min-h-0">
+            <div className="absolute top-4 left-4 lg:top-6 lg:left-6 bg-bento-accent-soft text-bento-accent px-2 lg:px-3 py-1 rounded-full text-[10px] lg:text-xs font-bold uppercase">
               Calculadora Científica
             </div>
-            <div className="font-mono text-bento-text-sec text-lg mb-2 truncate w-full text-right">
+            <div className="mt-6 lg:mt-0 font-mono text-bento-text-sec text-base lg:text-lg mb-1 lg:mb-2 truncate w-full text-right">
               {displayString}
             </div>
             <div className={cn(
-              "font-mono text-6xl font-medium tracking-tighter truncate w-full text-right",
+              "font-mono text-4xl lg:text-6xl font-medium tracking-tighter truncate w-full text-right",
               hasError ? "text-red-500" : "text-bento-text"
             )}>
               {result || (displayString ? '' : '0')}
-              <span className="w-[3px] h-[50px] bg-bento-accent inline-block ml-2 align-middle animate-pulse"></span>
+              <span className="w-[2px] lg:w-[3px] h-[30px] lg:h-[50px] bg-bento-accent inline-block ml-1 lg:ml-2 align-middle animate-pulse"></span>
             </div>
           </section>
 
           {/* Sidebar History */}
-          <aside className="row-span-2 col-start-3 bg-bento-card border border-bento-border rounded-3xl p-6 flex flex-col overflow-hidden">
-            <div className="text-sm uppercase tracking-widest text-bento-text-muted mb-5 font-bold shrink-0">
+          <aside className="order-4 lg:order-none lg:row-span-2 lg:col-start-3 bg-bento-card border border-bento-border rounded-3xl p-5 lg:p-6 flex flex-col overflow-hidden h-[250px] lg:h-auto">
+            <div className="text-xs lg:text-sm uppercase tracking-widest text-bento-text-muted mb-3 lg:mb-5 font-bold shrink-0">
               Histórico
             </div>
             <div className="flex-1 overflow-y-auto space-y-0 pr-2">
               {history.length === 0 ? (
-                <div className="text-bento-text-muted text-sm text-center mt-10">Nenhum cálculo ainda</div>
+                <div className="text-bento-text-muted text-xs lg:text-sm text-center mt-6 lg:mt-10">Nenhum cálculo ainda</div>
               ) : (
                 history.map((item, idx) => (
-                  <div key={idx} className="py-3 border-b border-bento-border last:border-0">
-                    <div className="font-mono text-xs text-bento-text-sec mb-1 truncate">{item.expression}</div>
-                    <div className="font-mono text-base font-semibold truncate">{item.result}</div>
+                  <div key={idx} className="py-2 lg:py-3 border-b border-bento-border last:border-0">
+                    <div className="font-mono text-[10px] lg:text-xs text-bento-text-sec mb-1 truncate">{item.expression}</div>
+                    <div className="font-mono text-sm lg:text-base font-semibold truncate">{item.result}</div>
                   </div>
                 ))
               )}
             </div>
-            <div className="mt-4 shrink-0">
+            <div className="mt-3 lg:mt-4 shrink-0">
               <button 
                 onClick={() => setHistory([])}
-                className="w-full h-14 bg-black/5 dark:bg-white/5 border border-dashed border-bento-border rounded-2xl text-sm font-semibold text-bento-text-muted hover:text-bento-text hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                className="w-full h-10 lg:h-14 bg-black/5 dark:bg-white/5 border border-dashed border-bento-border rounded-xl lg:rounded-2xl text-xs lg:text-sm font-semibold text-bento-text-muted hover:text-bento-text hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
               >
                 Limpar Tudo
               </button>
@@ -220,13 +220,13 @@ export default function App() {
           </aside>
 
           {/* Scientific Functions */}
-          <section className="bg-bento-card border border-bento-border rounded-3xl p-5 grid grid-cols-3 gap-3">
+          <section className="order-2 lg:order-none bg-bento-card border border-bento-border rounded-3xl p-4 lg:p-5 grid grid-cols-5 lg:grid-cols-3 gap-2 lg:gap-3">
             {SCI_BUTTONS.map((btn, idx) => (
               <button
                 key={idx}
                 onClick={() => handleButtonClick(btn)}
                 className={cn(
-                  "bg-black/5 dark:bg-white/5 border border-bento-border rounded-2xl flex items-center justify-center font-semibold transition-all active:scale-95 hover:bg-black/10 dark:hover:bg-white/10",
+                  "min-h-[44px] lg:min-h-0 bg-black/5 dark:bg-white/5 border border-bento-border rounded-xl lg:rounded-2xl flex items-center justify-center font-semibold transition-all active:scale-95 hover:bg-black/10 dark:hover:bg-white/10",
                   btn.className
                 )}
               >
@@ -236,14 +236,14 @@ export default function App() {
           </section>
 
           {/* Main Keyboard */}
-          <section className="bg-bento-card border border-bento-border rounded-3xl p-5 grid grid-cols-4 gap-3">
+          <section className="order-3 lg:order-none bg-bento-card border border-bento-border rounded-3xl p-4 lg:p-5 grid grid-cols-4 gap-2 lg:gap-3">
             {NUM_BUTTONS.map((btn, idx) => (
               <button
                 key={idx}
                 onClick={() => handleButtonClick(btn)}
                 className={cn(
-                  "bg-black/5 dark:bg-white/5 border border-bento-border rounded-2xl flex items-center justify-center text-base font-semibold transition-all active:scale-95 hover:bg-black/10 dark:hover:bg-white/10",
-                  btn.isNum && "text-xl bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20",
+                  "min-h-[52px] lg:min-h-0 bg-black/5 dark:bg-white/5 border border-bento-border rounded-xl lg:rounded-2xl flex items-center justify-center text-sm lg:text-base font-semibold transition-all active:scale-95 hover:bg-black/10 dark:hover:bg-white/10",
+                  btn.isNum && "text-lg lg:text-xl bg-black/10 dark:bg-white/10 hover:bg-black/20 dark:hover:bg-white/20",
                   btn.className
                 )}
               >
