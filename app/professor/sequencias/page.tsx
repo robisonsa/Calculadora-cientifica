@@ -69,8 +69,22 @@ interface SequenciaComHabilidade {
   }
 }
 
+function parseEtapas(raw: string) {
+  // Normaliza \n literais e divide em blocos por parágrafo
+  const text = raw.replace(/\\n/g, '\n')
+  return text
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => {
+      // Extrai **título** e o resto como descrição
+      const m = p.match(/^\*\*(.+?)\*\*\s*(.*)$/s)
+      return m ? { titulo: m[1], descricao: m[2].trim() } : { titulo: null, descricao: p }
+    })
+}
+
 function SequenciaCard({ seq }: { seq: SequenciaComHabilidade }) {
-  const [expanded, _] = [false, null]
+  const etapas = parseEtapas(seq.etapas)
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -103,22 +117,35 @@ function SequenciaCard({ seq }: { seq: SequenciaComHabilidade }) {
       </div>
 
       <details className="border-t border-gray-100">
-        <summary className="px-5 py-3 text-xs font-semibold text-primary hover:bg-blue-50 cursor-pointer transition-colors">
-          Ver etapas da sequência →
+        <summary className="px-5 py-3 text-xs font-semibold text-primary hover:bg-green-50 cursor-pointer transition-colors select-none">
+          ▶ Ver etapas da sequência
         </summary>
-        <div className="px-5 pb-5">
+        <div className="px-5 pb-5 pt-1">
           {seq.materiais && (
-            <div className="mb-3">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Materiais</p>
-              <p className="text-sm text-gray-600">{seq.materiais}</p>
+            <div className="mb-4 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+              <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">📦 Materiais</p>
+              <p className="text-sm text-amber-900">{seq.materiais}</p>
             </div>
           )}
-          <div>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Etapas</p>
-            <div className="prose prose-sm max-w-none text-gray-600 text-sm whitespace-pre-wrap">
-              {seq.etapas}
-            </div>
-          </div>
+
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">📋 Etapas</p>
+          <ol className="space-y-3">
+            {etapas.map((step, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="shrink-0 w-6 h-6 rounded-full bg-primary text-white text-xs font-black flex items-center justify-center mt-0.5">
+                  {i + 1}
+                </span>
+                <div>
+                  {step.titulo && (
+                    <p className="text-sm font-bold text-foreground leading-snug">{step.titulo}</p>
+                  )}
+                  {step.descricao && (
+                    <p className="text-sm text-gray-600 mt-0.5 leading-relaxed">{step.descricao}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </details>
     </div>
