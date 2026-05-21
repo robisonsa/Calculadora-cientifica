@@ -7,9 +7,9 @@
 DO $$
 DECLARE
   -- IDs das turmas
-  turma_1a_id UUID;
-  turma_2a_id UUID;
-  turma_3a_id UUID;
+  turma_2ef_id UUID;
+  turma_5ef_id UUID;
+  turma_9ef_id UUID;
 
   -- IDs das habilidades 2º EF
   lp2ef01_id UUID; lp2ef02_id UUID; lp2ef03_id UUID; lp2ef04_id UUID;
@@ -286,14 +286,14 @@ RAISE NOTICE 'Insígnias OK';
 -- ===== 4. TURMAS =====
 RAISE NOTICE 'Inserindo turmas...';
 INSERT INTO public.turmas (nome, ano_letivo, escola) VALUES
-  ('1ºA', 2026, 'CEGLB'),
-  ('2ºA', 2026, 'CEGLB'),
-  ('3ºA', 2026, 'CEGLB')
+  ('2º Ano EF', 2026, 'CEGLB'),
+  ('5º Ano EF', 2026, 'CEGLB'),
+  ('9º Ano EF', 2026, 'CEGLB')
 ON CONFLICT DO NOTHING;
 
-SELECT id INTO turma_1a_id FROM public.turmas WHERE nome = '1ºA' AND ano_letivo = 2026;
-SELECT id INTO turma_2a_id FROM public.turmas WHERE nome = '2ºA' AND ano_letivo = 2026;
-SELECT id INTO turma_3a_id FROM public.turmas WHERE nome = '3ºA' AND ano_letivo = 2026;
+SELECT id INTO turma_2ef_id FROM public.turmas WHERE nome = '2º Ano EF' AND ano_letivo = 2026;
+SELECT id INTO turma_5ef_id FROM public.turmas WHERE nome = '5º Ano EF' AND ano_letivo = 2026;
+SELECT id INTO turma_9ef_id FROM public.turmas WHERE nome = '9º Ano EF' AND ano_letivo = 2026;
 RAISE NOTICE 'Turmas OK';
 
 -- ===== 5. USUÁRIOS AUTH =====
@@ -416,14 +416,14 @@ SELECT id INTO joao_id  FROM auth.users WHERE email = 'joao@gps.demo';
 SELECT id INTO maria_id FROM auth.users WHERE email = 'maria@gps.demo';
 SELECT id INTO pedro_id FROM auth.users WHERE email = 'pedro@gps.demo';
 
-UPDATE public.profiles SET turma_id = turma_2a_id, ano_escolar = '9EF' WHERE id = joao_id;
-UPDATE public.profiles SET turma_id = turma_2a_id, ano_escolar = '5EF' WHERE id = maria_id;
-UPDATE public.profiles SET turma_id = turma_2a_id, ano_escolar = '2EF' WHERE id = pedro_id;
+UPDATE public.profiles SET turma_id = turma_9ef_id, ano_escolar = '9EF' WHERE id = joao_id;
+UPDATE public.profiles SET turma_id = turma_5ef_id, ano_escolar = '5EF' WHERE id = maria_id;
+UPDATE public.profiles SET turma_id = turma_2ef_id, ano_escolar = '2EF' WHERE id = pedro_id;
 
 -- Vincula professor às turmas
 UPDATE public.turmas
 SET professor_id = (SELECT id FROM auth.users WHERE email = 'robison@gps.demo')
-WHERE id IN (turma_1a_id, turma_2a_id, turma_3a_id)
+WHERE id IN (turma_2ef_id, turma_5ef_id, turma_9ef_id)
   AND professor_id IS NULL;
 
 -- ===== 7. SEQUÊNCIAS DIDÁTICAS =====
