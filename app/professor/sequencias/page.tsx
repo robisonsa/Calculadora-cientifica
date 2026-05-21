@@ -78,7 +78,7 @@ function parseEtapas(raw: string) {
     .filter(Boolean)
     .map((p) => {
       // Extrai **título** e o resto como descrição
-      const m = p.match(/^\*\*(.+?)\*\*\s*(.*)$/s)
+      const m = p.match(/^\*\*(.+?)\*\*\s*([\s\S]*)$/)
       return m ? { titulo: m[1], descricao: m[2].trim() } : { titulo: null, descricao: p }
     })
 }
