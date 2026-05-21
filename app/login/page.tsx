@@ -24,27 +24,76 @@ export default function LoginPage() {
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (authError) {
-      setError('Email ou senha incorretos. Tente novamente.')
+      setError('Email ou senha incorretos. Verifique suas credenciais.')
       setLoading(false)
       return
     }
 
     if (data.user) {
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', data.user.id)
         .single()
 
-      if (profile) {
-        const redirectMap: Record<string, string> = {
-          estudante: '/estudante/dashboard',
-          professor: '/professor/turmas',
-          gestor: '/gestor/dashboard',
-        }
-        router.push(redirectMap[profile.role] ?? '/')
-        router.refresh()
+      if (profileError || !profile) {
+        setError('Perfil não encontrado. Execute o seed e as migrations no Supabase.')
+        setLoading(false)
+        return
       }
+
+      const redirectMap: Record<string, string> = {
+        estudante: '/estudante/dashboard',
+        professor: '/professor/turmas',
+        gestor: '/gestor/dashboard',
+      }
+      router.push(redirectMap[profile.role] ?? '/')
+      router.refresh()
+      return
+    }
+
+    setLoading(false)
+  }
+
+  async function handleDemoLogin(demoEmail: string) {
+    setEmail(demoEmail)
+    setPassword('gps2026')
+    setLoading(true)
+    setError('')
+
+    const supabase = createClient()
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: demoEmail,
+      password: 'gps2026',
+    })
+
+    if (authError) {
+      setError('Usuário demo não encontrado. Execute o seed no Supabase primeiro.')
+      setLoading(false)
+      return
+    }
+
+    if (data.user) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+
+      if (profileError || !profile) {
+        setError('Migrations não foram executadas no Supabase. Rode o SQL de migrations primeiro.')
+        setLoading(false)
+        return
+      }
+
+      const redirectMap: Record<string, string> = {
+        estudante: '/estudante/dashboard',
+        professor: '/professor/turmas',
+        gestor: '/gestor/dashboard',
+      }
+      router.push(redirectMap[profile.role] ?? '/')
+      router.refresh()
+      return
     }
 
     setLoading(false)
@@ -152,10 +201,8 @@ export default function LoginPage() {
                 <button
                   key={account.email}
                   type="button"
-                  onClick={() => {
-                    setEmail(account.email)
-                    setPassword('gps2026')
-                  }}
+                  disabled={loading}
+                  onClick={() => handleDemoLogin(account.email)}
                   className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-3 rounded-lg transition-colors font-medium text-center"
                 >
                   {account.label}
