@@ -416,17 +416,9 @@ SELECT id INTO joao_id  FROM auth.users WHERE email = 'joao@gps.demo';
 SELECT id INTO maria_id FROM auth.users WHERE email = 'maria@gps.demo';
 SELECT id INTO pedro_id FROM auth.users WHERE email = 'pedro@gps.demo';
 
-UPDATE public.profiles
-SET turma_id = turma_2a_id, ano_escolar = '9EF'
-WHERE id = joao_id AND turma_id IS NULL;
-
-UPDATE public.profiles
-SET turma_id = turma_2a_id, ano_escolar = '5EF'
-WHERE id = maria_id AND turma_id IS NULL;
-
-UPDATE public.profiles
-SET turma_id = turma_2a_id, ano_escolar = '2EF'
-WHERE id = pedro_id AND turma_id IS NULL;
+UPDATE public.profiles SET turma_id = turma_2a_id, ano_escolar = '9EF' WHERE id = joao_id;
+UPDATE public.profiles SET turma_id = turma_2a_id, ano_escolar = '5EF' WHERE id = maria_id;
+UPDATE public.profiles SET turma_id = turma_2a_id, ano_escolar = '2EF' WHERE id = pedro_id;
 
 -- Vincula professor às turmas
 UPDATE public.turmas
