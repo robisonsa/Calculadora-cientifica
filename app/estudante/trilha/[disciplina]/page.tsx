@@ -145,21 +145,23 @@ export default async function TrilhaPage({ params }: { params: { disciplina: str
 
                 {/* Nó */}
                 <div className={`transform ${offsetClass} flex flex-col items-center gap-2`}>
-                  {/* Círculo clicável */}
-                  <Link
-                    href={canPlay ? `/estudante/atividade/${th.habilidade_id}` : '#'}
-                    onClick={canPlay ? undefined : (e) => e.preventDefault()}
-                    className={`
-                      w-20 h-20 rounded-full flex items-center justify-center
-                      transition-all duration-200
-                      ${outerClass}
-                      ${canPlay ? 'cursor-pointer hover:scale-110 active:scale-95' : 'cursor-default'}
-                    `}
-                  >
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${innerClass}`}>
-                      {NodeIcon}
+                  {/* Círculo — clicável se disponível */}
+                  {canPlay ? (
+                    <Link
+                      href={`/estudante/atividade/${th.habilidade_id}`}
+                      className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 active:scale-95 ${outerClass}`}
+                    >
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${innerClass}`}>
+                        {NodeIcon}
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center cursor-default ${outerClass}`}>
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${innerClass}`}>
+                        {NodeIcon}
+                      </div>
                     </div>
-                  </Link>
+                  )}
 
                   {/* Rótulo do nó */}
                   <div className="text-center w-36">
