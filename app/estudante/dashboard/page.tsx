@@ -3,8 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { XPBar } from '@/components/XPBar'
 import { InsigniaCard } from '@/components/InsigniaCard'
-import { BookOpen, Calculator, ChevronRight, Plus, Trophy, Zap, Star, Map } from 'lucide-react'
-import Image from 'next/image'
+import { ChevronRight, Plus, Trophy, Zap, Star, Map } from 'lucide-react'
 
 function calcLevel(xp: number) {
   if (xp >= 1500) return { level: 5, name: 'Mestre GPS',   emoji: '🧠', next: xp,  prev: 1500 }
@@ -40,14 +39,17 @@ export default async function EstudanteDashboard() {
   const { data: todasInsignias } = await supabase.from('insignias').select('*')
 
   // Próxima habilidade a praticar
-  const { data: proxHab } = await supabase
-    .from('trilha_habilidades')
-    .select('*, habilidade:habilidades(*), trilha:trilhas(disciplina)')
-    .in('trilha_id', trilhas?.map((t) => t.id) ?? [])
-    .neq('status', 'concluida')
-    .order('id', { ascending: true })
-    .limit(1)
-    .maybeSingle()
+  const trilhaIds = trilhas?.map((t) => t.id) ?? []
+  const { data: proxHab } = trilhaIds.length === 0
+    ? { data: null }
+    : await supabase
+        .from('trilha_habilidades')
+        .select('*, habilidade:habilidades(*), trilha:trilhas(disciplina)')
+        .in('trilha_id', trilhaIds)
+        .neq('status', 'concluida')
+        .order('id', { ascending: true })
+        .limit(1)
+        .maybeSingle()
 
   const primeiroNome = profile.nome_completo.split(' ')[0]
   const diagLP  = diagnosticos.find((d) => d.disciplina === 'lp')

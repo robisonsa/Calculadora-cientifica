@@ -44,7 +44,7 @@ export default async function TrilhaPage({ params }: { params: { disciplina: str
     .eq('trilha_id', trilha.id)
     .order('id', { ascending: true })
 
-  const habs      = (trilhaHabilidades ?? []) as TrilhaHabilidade[]
+  const habs       = (trilhaHabilidades ?? []) as TrilhaHabilidade[]
   const concluidas = habs.filter((h) => h.status === 'concluida').length
   const total      = habs.length
   const pct        = total > 0 ? Math.round((concluidas / total) * 100) : 0
@@ -57,13 +57,15 @@ export default async function TrilhaPage({ params }: { params: { disciplina: str
 
   return (
     <div className="max-w-md mx-auto">
-      {/* Voltar */}
-      <Link href="/estudante/dashboard" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-foreground mb-4 transition-colors font-semibold">
+      <Link
+        href="/estudante/dashboard"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-foreground mb-4 transition-colors font-semibold"
+      >
         <ArrowLeft className="w-4 h-4" />
         Dashboard
       </Link>
 
-      {/* Cabeçalho da trilha */}
+      {/* Cabeçalho */}
       <div className={`bg-gradient-to-br ${gradient} rounded-3xl p-6 mb-6 shadow-xl text-white`}>
         <div className="flex items-center gap-3 mb-4">
           <span className="text-4xl float inline-block">{icon}</span>
@@ -94,7 +96,6 @@ export default async function TrilhaPage({ params }: { params: { disciplina: str
         </div>
       )}
 
-      {/* Sem habilidades */}
       {habs.length === 0 && (
         <div className="text-center py-12 bg-white rounded-2xl shadow-card border border-gray-100">
           <div className="text-5xl mb-3">🎊</div>
@@ -103,108 +104,111 @@ export default async function TrilhaPage({ params }: { params: { disciplina: str
         </div>
       )}
 
-      {/* PATH ESTILO DUOLINGO */}
+      {/* CAMINHO — estilo percurso */}
       {habs.length > 0 && (
-        <div className="relative flex flex-col items-center pb-8">
-          {/* Linha central do caminho */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2 bg-gray-200 rounded-full" />
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-card overflow-hidden">
+          <div className="flex flex-col items-center px-4 pt-6 pb-8 gap-0">
+            {habs.map((th, idx) => {
+              const isDone       = th.status === 'concluida'
+              const isInProgress = th.status === 'em_andamento'
+              const isActive     = idx === activeIdx
+              const canPlay      = isDone || isActive || isInProgress
+              const nodeOnLeft   = idx % 2 === 0
 
-          {habs.map((th, idx) => {
-            const isDone       = th.status === 'concluida'
-            const isInProgress = th.status === 'em_andamento'
-            const isActive     = idx === activeIdx
-            const canPlay      = isDone || isActive || isInProgress
+              const xpEste = xpPorNivel(th.habilidade?.nivel_escala_saeb ?? 3)
 
-            // Alterna esquerda/direita
-            const isLeft = idx % 2 === 0
-            const offsetClass = isLeft ? '-translate-x-14 sm:-translate-x-20' : 'translate-x-14 sm:translate-x-20'
+              // Visual do nó
+              let nodeRing: string
+              let nodeFill: string
+              let NodeIcon: React.ReactNode
 
-            // Estilos do nó
-            let outerClass = ''
-            let innerClass = ''
-            let NodeIcon: React.ReactNode
+              if (isDone) {
+                nodeRing = 'border-[4px] border-secondary bg-blue-50 shadow-md'
+                nodeFill = 'bg-secondary'
+                NodeIcon = <CheckCircle className="w-6 h-6 text-white" />
+              } else if (isActive || isInProgress) {
+                nodeRing = 'border-[4px] border-accent bg-orange-50 node-pulse shadow-lg shadow-orange-200'
+                nodeFill = 'bg-accent'
+                NodeIcon = isInProgress
+                  ? <Flame className="w-7 h-7 text-white" />
+                  : <Star className="w-7 h-7 text-white fill-white" />
+              } else {
+                nodeRing = 'border-[4px] border-gray-200 bg-gray-50'
+                nodeFill = 'bg-gray-300'
+                NodeIcon = <Lock className="w-5 h-5 text-white/80" />
+              }
 
-            if (isDone) {
-              outerClass = 'border-4 border-node-done bg-green-50 shadow-node-done'
-              innerClass = 'bg-node-done'
-              NodeIcon   = <CheckCircle className="w-7 h-7 text-white" />
-            } else if (isInProgress || isActive) {
-              outerClass = 'border-4 border-node-active bg-blue-50 node-pulse shadow-node-active'
-              innerClass = 'bg-node-active'
-              NodeIcon   = <Flame className="w-7 h-7 text-white" />
-            } else {
-              outerClass = 'border-4 border-gray-300 bg-gray-50'
-              innerClass = 'bg-gray-400'
-              NodeIcon   = <Lock className="w-6 h-6 text-white/80" />
-            }
+              const nodeSize  = (isActive || isInProgress) ? 'w-24 h-24' : 'w-20 h-20'
+              const innerSize = (isActive || isInProgress) ? 'w-14 h-14' : 'w-11 h-11'
 
-            return (
-              <div key={th.id} className="relative z-10 w-full flex flex-col items-center">
-                {/* Espaço top */}
-                <div className="h-5" />
+              // Cor do conector acima deste nó
+              const prevDone = idx > 0 && habs[idx - 1].status === 'concluida'
+              const connColor = prevDone ? 'bg-secondary' : 'bg-gray-200'
 
-                {/* Nó */}
-                <div className={`transform ${offsetClass} flex flex-col items-center gap-2`}>
-                  {/* Círculo — clicável se disponível */}
-                  {canPlay ? (
-                    <Link
-                      href={`/estudante/atividade/${th.habilidade_id}`}
-                      className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 active:scale-95 ${outerClass}`}
-                    >
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${innerClass}`}>
-                        {NodeIcon}
-                      </div>
-                    </Link>
-                  ) : (
-                    <div className={`w-20 h-20 rounded-full flex items-center justify-center cursor-default ${outerClass}`}>
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${innerClass}`}>
-                        {NodeIcon}
-                      </div>
-                    </div>
+              return (
+                <div key={th.id} className="w-full flex flex-col items-center">
+                  {/* Conector vertical */}
+                  {idx > 0 && (
+                    <div className={`w-1.5 h-10 ${connColor} rounded-full`} />
                   )}
 
-                  {/* Rótulo do nó */}
-                  <div className="text-center w-36">
-                    <div className="flex items-center justify-center gap-1 mb-0.5">
-                      <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                        isDone             ? 'bg-green-100 text-green-700' :
-                        (isActive || isInProgress) ? 'bg-blue-100 text-blue-700' :
+                  {/* Linha: nó + rótulo alternando lado */}
+                  <div className={`flex items-center gap-3 w-full max-w-[18rem] ${nodeOnLeft ? '' : 'flex-row-reverse'}`}>
+
+                    {/* Círculo do nó */}
+                    {canPlay ? (
+                      <Link
+                        href={`/estudante/atividade/${th.habilidade_id}`}
+                        className={`shrink-0 ${nodeSize} rounded-full ${nodeRing} flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200`}
+                      >
+                        <div className={`${innerSize} rounded-full ${nodeFill} flex items-center justify-center`}>
+                          {NodeIcon}
+                        </div>
+                      </Link>
+                    ) : (
+                      <div className={`shrink-0 ${nodeSize} rounded-full ${nodeRing} flex items-center justify-center`}>
+                        <div className={`${innerSize} rounded-full ${nodeFill} flex items-center justify-center`}>
+                          {NodeIcon}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Rótulo */}
+                    <div className={`flex-1 min-w-0 ${nodeOnLeft ? 'text-left' : 'text-right'}`}>
+                      <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md inline-block ${
+                        isDone             ? 'bg-blue-100 text-secondary' :
+                        (isActive || isInProgress) ? 'bg-orange-100 text-orange-700' :
                         'bg-gray-100 text-gray-400'
                       }`}>
                         {th.habilidade?.codigo}
                       </span>
-                      <span className={`text-[10px] font-bold ${isDone ? 'text-amber-500' : 'text-gray-400'}`}>
-                        {isDone ? `+${th.xp_conquistado} XP` : `${xpPorNivel(th.habilidade?.nivel_escala_saeb ?? 3)} XP`}
-                      </span>
+                      <p className={`text-xs font-bold leading-snug mt-0.5 ${
+                        isDone             ? 'text-gray-500' :
+                        (isActive || isInProgress) ? 'text-foreground' :
+                        'text-gray-400'
+                      }`}>
+                        {th.habilidade?.descricao}
+                      </p>
+                      <p className={`text-[10px] mt-0.5 font-semibold ${isDone ? 'text-amber-500' : 'text-gray-400'}`}>
+                        {isDone ? `✓ +${th.xp_conquistado} XP` : `${xpEste} XP`}
+                      </p>
+
+                      {/* Botão de ação para o nó ativo */}
+                      {(isActive || isInProgress) && (
+                        <Link
+                          href={`/estudante/atividade/${th.habilidade_id}`}
+                          className="mt-2 inline-flex items-center gap-1 text-[11px] font-black bg-accent text-white px-3 py-1.5 rounded-full shadow-md hover:opacity-90 transition-opacity"
+                        >
+                          {isInProgress ? '🔥 Continuar' : '⭐ Iniciar'}
+                          <ChevronRight className="w-3 h-3" />
+                        </Link>
+                      )}
                     </div>
-                    <p className={`text-xs font-bold leading-tight ${
-                      isDone             ? 'text-gray-500' :
-                      (isActive || isInProgress) ? 'text-foreground' :
-                      'text-gray-400'
-                    }`}>
-                      {th.habilidade?.descricao}
-                    </p>
-                    {(isActive || isInProgress) && (
-                      <Link
-                        href={`/estudante/atividade/${th.habilidade_id}`}
-                        className="mt-2 inline-flex items-center gap-1 text-[11px] font-black bg-node-active text-white px-3 py-1.5 rounded-full shadow-sm hover:opacity-90 transition-opacity"
-                      >
-                        {isInProgress ? 'Continuar' : 'Iniciar'}
-                        <ChevronRight className="w-3 h-3" />
-                      </Link>
-                    )}
                   </div>
                 </div>
-
-                {/* Conector para o próximo nó */}
-                {idx < habs.length - 1 && (
-                  <div className="h-6 w-1 rounded-full mt-1 z-10"
-                    style={{ backgroundColor: isDone ? '#58CC02' : '#e5e7eb' }}
-                  />
-                )}
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       )}
     </div>
