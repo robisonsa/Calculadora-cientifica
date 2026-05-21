@@ -29,11 +29,11 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-4 py-1.5 rounded-full text-sm font-medium mb-6">
             <Star className="w-4 h-4 text-accent" fill="currentColor" />
-            Hackathon Escolar CEGLB 2025
+            Hackathon Escolar CEGLB 2026
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
             Sua rota para o<br />
-            <span className="text-accent">SAEB 2025</span>
+            <span className="text-accent">SAEB 2026</span>
           </h1>
           <p className="text-lg md:text-xl text-green-100 max-w-2xl mx-auto mb-10">
             Diagnóstico inteligente, trilhas personalizadas e gamificação para você ir mais longe
@@ -234,7 +234,7 @@ export default function LandingPage() {
             📍 GPS — Gerenciador de Preparação para o SAEB/SAESE
           </p>
           <p>Centro de Excelência Governador Lourival Baptista — Porto da Folha, SE</p>
-          <p className="mt-2 text-white/40">Hackathon Escolar CEGLB 2025 · Desenvolvido com Next.js + Supabase</p>
+          <p className="mt-2 text-white/40">Hackathon Escolar CEGLB 2026 · Desenvolvido com Next.js + Supabase</p>
         </div>
       </footer>
     </div>

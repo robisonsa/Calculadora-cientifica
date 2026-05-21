@@ -188,9 +188,9 @@ async function seed() {
   const { data: turmasSeed } = await supabase
     .from('turmas')
     .upsert([
-      { nome: '1ºA', ano_letivo: 2025, escola: 'CEGLB' },
-      { nome: '2ºA', ano_letivo: 2025, escola: 'CEGLB' },
-      { nome: '3ºA', ano_letivo: 2025, escola: 'CEGLB' },
+      { nome: '1ºA', ano_letivo: 2026, escola: 'CEGLB' },
+      { nome: '2ºA', ano_letivo: 2026, escola: 'CEGLB' },
+      { nome: '3ºA', ano_letivo: 2026, escola: 'CEGLB' },
     ], { onConflict: 'nome' })
     .select()
   console.log('✅ Turmas inseridas')
@@ -214,7 +214,7 @@ async function seed() {
     if (!exists) {
       const { data: newUser, error } = await supabase.auth.admin.createUser({
         email: u.email,
-        password: 'gps2025',
+        password: 'gps2026',
         email_confirm: true,
         user_metadata: { nome_completo: u.nome, role: u.role },
       })
@@ -258,11 +258,11 @@ async function seed() {
 
   console.log('\n🎉 Seed concluído com sucesso!\n')
   console.log('Contas demo criadas:')
-  console.log('  Professor: robison@gps.demo / gps2025')
-  console.log('  Gestora:   gestora@gps.demo / gps2025')
-  console.log('  Estudante: joao@gps.demo / gps2025')
-  console.log('  Estudante: maria@gps.demo / gps2025')
-  console.log('  Estudante: pedro@gps.demo / gps2025')
+  console.log('  Professor: robison@gps.demo / gps2026')
+  console.log('  Gestora:   gestora@gps.demo / gps2026')
+  console.log('  Estudante: joao@gps.demo / gps2026')
+  console.log('  Estudante: maria@gps.demo / gps2026')
+  console.log('  Estudante: pedro@gps.demo / gps2026')
 }
 
 seed().catch(console.error)

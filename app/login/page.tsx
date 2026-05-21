@@ -146,7 +146,7 @@ export default function LoginPage() {
           {/* Demo accounts */}
           <div className="mt-6 pt-6 border-t border-gray-100">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 text-center">
-              Contas Demo (senha: gps2025)
+              Contas Demo (senha: gps2026)
             </p>
             <div className="grid grid-cols-3 gap-2">
               {demoAccounts.map((account) => (
@@ -155,7 +155,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => {
                     setEmail(account.email)
-                    setPassword('gps2025')
+                    setPassword('gps2026')
                   }}
                   className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-3 rounded-lg transition-colors font-medium text-center"
                 >
@@ -167,7 +167,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          CEGLB · Porto da Folha, SE · Hackathon 2025
+          CEGLB · Porto da Folha, SE · Hackathon 2026
         </p>
       </div>
     </div>

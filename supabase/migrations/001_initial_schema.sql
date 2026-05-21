@@ -7,7 +7,7 @@ create extension if not exists "uuid-ossp";
 create table turmas (
   id uuid default uuid_generate_v4() primary key,
   nome text not null,
-  ano_letivo int not null default 2025,
+  ano_letivo int not null default 2026,
   escola text default 'CEGLB',
   professor_id uuid,
   created_at timestamptz default now()
