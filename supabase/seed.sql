@@ -197,19 +197,20 @@ RAISE NOTICE 'Turmas OK';
 RAISE NOTICE 'Criando usuários demo...';
 
 -- Professor
-INSERT INTO auth.users (
-  instance_id, id, aud, role, email, encrypted_password,
-  email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
-  confirmation_token, recovery_token, email_change_token_new, email_change
-) VALUES (
-  '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
-  'authenticated', 'authenticated', 'robison@gps.demo',
-  crypt('gps2026', gen_salt('bf')), NOW(),
-  '{"provider":"email","providers":["email"]}',
-  '{"nome_completo":"Prof. Robison Sá","role":"professor"}',
-  NOW(), NOW(), '', '', '', ''
-) ON CONFLICT (email) DO NOTHING;
-
+IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'robison@gps.demo') THEN
+  INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change
+  ) VALUES (
+    '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated', 'robison@gps.demo',
+    crypt('gps2026', gen_salt('bf')), NOW(),
+    '{"provider":"email","providers":["email"]}',
+    '{"nome_completo":"Prof. Robison Sá","role":"professor"}',
+    NOW(), NOW(), '', '', '', ''
+  );
+END IF;
 SELECT id INTO professor_id FROM auth.users WHERE email = 'robison@gps.demo';
 INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, created_at, updated_at, last_sign_in_at)
 VALUES (gen_random_uuid(), professor_id,
@@ -218,19 +219,20 @@ VALUES (gen_random_uuid(), professor_id,
 ON CONFLICT (provider, provider_id) DO NOTHING;
 
 -- Gestora
-INSERT INTO auth.users (
-  instance_id, id, aud, role, email, encrypted_password,
-  email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
-  confirmation_token, recovery_token, email_change_token_new, email_change
-) VALUES (
-  '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
-  'authenticated', 'authenticated', 'gestora@gps.demo',
-  crypt('gps2026', gen_salt('bf')), NOW(),
-  '{"provider":"email","providers":["email"]}',
-  '{"nome_completo":"Gestora Ana Paula","role":"gestor"}',
-  NOW(), NOW(), '', '', '', ''
-) ON CONFLICT (email) DO NOTHING;
-
+IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'gestora@gps.demo') THEN
+  INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change
+  ) VALUES (
+    '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated', 'gestora@gps.demo',
+    crypt('gps2026', gen_salt('bf')), NOW(),
+    '{"provider":"email","providers":["email"]}',
+    '{"nome_completo":"Gestora Ana Paula","role":"gestor"}',
+    NOW(), NOW(), '', '', '', ''
+  );
+END IF;
 SELECT id INTO gestora_id FROM auth.users WHERE email = 'gestora@gps.demo';
 INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, created_at, updated_at, last_sign_in_at)
 VALUES (gen_random_uuid(), gestora_id,
@@ -239,19 +241,20 @@ VALUES (gen_random_uuid(), gestora_id,
 ON CONFLICT (provider, provider_id) DO NOTHING;
 
 -- João (estudante)
-INSERT INTO auth.users (
-  instance_id, id, aud, role, email, encrypted_password,
-  email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
-  confirmation_token, recovery_token, email_change_token_new, email_change
-) VALUES (
-  '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
-  'authenticated', 'authenticated', 'joao@gps.demo',
-  crypt('gps2026', gen_salt('bf')), NOW(),
-  '{"provider":"email","providers":["email"]}',
-  '{"nome_completo":"João Silva","role":"estudante"}',
-  NOW(), NOW(), '', '', '', ''
-) ON CONFLICT (email) DO NOTHING;
-
+IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'joao@gps.demo') THEN
+  INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change
+  ) VALUES (
+    '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated', 'joao@gps.demo',
+    crypt('gps2026', gen_salt('bf')), NOW(),
+    '{"provider":"email","providers":["email"]}',
+    '{"nome_completo":"João Silva","role":"estudante"}',
+    NOW(), NOW(), '', '', '', ''
+  );
+END IF;
 SELECT id INTO joao_id FROM auth.users WHERE email = 'joao@gps.demo';
 INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, created_at, updated_at, last_sign_in_at)
 VALUES (gen_random_uuid(), joao_id,
@@ -260,19 +263,20 @@ VALUES (gen_random_uuid(), joao_id,
 ON CONFLICT (provider, provider_id) DO NOTHING;
 
 -- Maria (estudante)
-INSERT INTO auth.users (
-  instance_id, id, aud, role, email, encrypted_password,
-  email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
-  confirmation_token, recovery_token, email_change_token_new, email_change
-) VALUES (
-  '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
-  'authenticated', 'authenticated', 'maria@gps.demo',
-  crypt('gps2026', gen_salt('bf')), NOW(),
-  '{"provider":"email","providers":["email"]}',
-  '{"nome_completo":"Maria Oliveira","role":"estudante"}',
-  NOW(), NOW(), '', '', '', ''
-) ON CONFLICT (email) DO NOTHING;
-
+IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'maria@gps.demo') THEN
+  INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change
+  ) VALUES (
+    '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated', 'maria@gps.demo',
+    crypt('gps2026', gen_salt('bf')), NOW(),
+    '{"provider":"email","providers":["email"]}',
+    '{"nome_completo":"Maria Oliveira","role":"estudante"}',
+    NOW(), NOW(), '', '', '', ''
+  );
+END IF;
 SELECT id INTO maria_id FROM auth.users WHERE email = 'maria@gps.demo';
 INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, created_at, updated_at, last_sign_in_at)
 VALUES (gen_random_uuid(), maria_id,
@@ -281,19 +285,20 @@ VALUES (gen_random_uuid(), maria_id,
 ON CONFLICT (provider, provider_id) DO NOTHING;
 
 -- Pedro (estudante)
-INSERT INTO auth.users (
-  instance_id, id, aud, role, email, encrypted_password,
-  email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
-  confirmation_token, recovery_token, email_change_token_new, email_change
-) VALUES (
-  '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
-  'authenticated', 'authenticated', 'pedro@gps.demo',
-  crypt('gps2026', gen_salt('bf')), NOW(),
-  '{"provider":"email","providers":["email"]}',
-  '{"nome_completo":"Pedro Santos","role":"estudante"}',
-  NOW(), NOW(), '', '', '', ''
-) ON CONFLICT (email) DO NOTHING;
-
+IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'pedro@gps.demo') THEN
+  INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    confirmation_token, recovery_token, email_change_token_new, email_change
+  ) VALUES (
+    '00000000-0000-0000-0000-000000000000', gen_random_uuid(),
+    'authenticated', 'authenticated', 'pedro@gps.demo',
+    crypt('gps2026', gen_salt('bf')), NOW(),
+    '{"provider":"email","providers":["email"]}',
+    '{"nome_completo":"Pedro Santos","role":"estudante"}',
+    NOW(), NOW(), '', '', '', ''
+  );
+END IF;
 SELECT id INTO pedro_id FROM auth.users WHERE email = 'pedro@gps.demo';
 INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, created_at, updated_at, last_sign_in_at)
 VALUES (gen_random_uuid(), pedro_id,
