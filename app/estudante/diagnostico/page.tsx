@@ -52,18 +52,25 @@ export default function DiagnosticoPage() {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('turma_id')
+      .select('turma_id, ano_escolar')
       .eq('id', user.id)
       .single()
 
-    // Buscar habilidades por disciplina
+    if (!profile?.ano_escolar) {
+      alert('Seu ano escolar não está definido. Contate o professor.')
+      setLoading(false)
+      return
+    }
+
+    // Buscar habilidades por disciplina e ano escolar
     const { data: habilidades } = await supabase
       .from('habilidades')
       .select('*')
       .eq('disciplina', disc)
+      .eq('ano_escolar', profile.ano_escolar)
 
     if (!habilidades || habilidades.length === 0) {
-      alert('Nenhuma habilidade cadastrada. Execute o seed primeiro.')
+      alert(`Nenhuma habilidade cadastrada para ${profile.ano_escolar}. Execute o seed no Supabase.`)
       setLoading(false)
       return
     }

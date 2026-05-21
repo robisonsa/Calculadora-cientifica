@@ -54,57 +54,18 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  async function handleDemoLogin(demoEmail: string) {
+  function preencherDemo(demoEmail: string) {
     setEmail(demoEmail)
     setPassword('gps2026')
-    setLoading(true)
     setError('')
-
-    try {
-      const supabase = createClient()
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email: demoEmail,
-        password: 'gps2026',
-      })
-
-      if (authError) {
-        setError('Usuário demo não encontrado. Execute o seed no Supabase primeiro.')
-        setLoading(false)
-        return
-      }
-
-      if (data.user) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single()
-
-        if (profileError || !profile) {
-          setError(`Perfil não encontrado (${profileError?.message ?? 'sem dados'}). Verifique as migrations.`)
-          setLoading(false)
-          return
-        }
-
-        const redirectMap: Record<string, string> = {
-          estudante: '/estudante/dashboard',
-          professor: '/professor/turmas',
-          gestor: '/gestor/dashboard',
-        }
-        window.location.href = redirectMap[profile.role] ?? '/'
-        return
-      }
-    } catch (err) {
-      setError(`Erro inesperado: ${err instanceof Error ? err.message : String(err)}`)
-    }
-
-    setLoading(false)
   }
 
   const demoAccounts = [
-    { label: 'Estudante', email: 'joao@gps.demo', role: 'estudante' },
-    { label: 'Professor', email: 'robison@gps.demo', role: 'professor' },
-    { label: 'Gestora', email: 'gestora@gps.demo', role: 'gestor' },
+    { label: 'João (9EF)', email: 'joao@gps.demo' },
+    { label: 'Maria (5EF)', email: 'maria@gps.demo' },
+    { label: 'Pedro (2EF)', email: 'pedro@gps.demo' },
+    { label: 'Professor', email: 'robison@gps.demo' },
+    { label: 'Gestora', email: 'gestora@gps.demo' },
   ]
 
   return (
@@ -196,7 +157,7 @@ export default function LoginPage() {
           {/* Demo accounts */}
           <div className="mt-6 pt-6 border-t border-gray-100">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 text-center">
-              Contas Demo (senha: gps2026)
+              Preencher com conta demo
             </p>
             <div className="grid grid-cols-3 gap-2">
               {demoAccounts.map((account) => (
@@ -204,13 +165,26 @@ export default function LoginPage() {
                   key={account.email}
                   type="button"
                   disabled={loading}
-                  onClick={() => handleDemoLogin(account.email)}
+                  onClick={() => preencherDemo(account.email)}
                   className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 py-2 px-3 rounded-lg transition-colors font-medium text-center"
                 >
                   {account.label}
                 </button>
               ))}
             </div>
+            <p className="text-xs text-gray-400 text-center mt-2">
+              Clique em uma conta e depois em <strong>Entrar no GPS</strong>
+            </p>
+          </div>
+
+          {/* Link cadastro */}
+          <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+            <p className="text-sm text-gray-500">
+              Estudante novo?{' '}
+              <a href="/cadastro" className="text-primary font-semibold hover:underline">
+                Criar conta
+              </a>
+            </p>
           </div>
         </div>
 
