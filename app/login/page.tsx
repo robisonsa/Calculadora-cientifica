@@ -47,8 +47,7 @@ export default function LoginPage() {
         professor: '/professor/turmas',
         gestor: '/gestor/dashboard',
       }
-      router.push(redirectMap[profile.role] ?? '/')
-      router.refresh()
+      window.location.href = redirectMap[profile.role] ?? '/'
       return
     }
 
@@ -61,39 +60,42 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const supabase = createClient()
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email: demoEmail,
-      password: 'gps2026',
-    })
+    try {
+      const supabase = createClient()
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: demoEmail,
+        password: 'gps2026',
+      })
 
-    if (authError) {
-      setError('Usuário demo não encontrado. Execute o seed no Supabase primeiro.')
-      setLoading(false)
-      return
-    }
-
-    if (data.user) {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single()
-
-      if (profileError || !profile) {
-        setError('Migrations não foram executadas no Supabase. Rode o SQL de migrations primeiro.')
+      if (authError) {
+        setError('Usuário demo não encontrado. Execute o seed no Supabase primeiro.')
         setLoading(false)
         return
       }
 
-      const redirectMap: Record<string, string> = {
-        estudante: '/estudante/dashboard',
-        professor: '/professor/turmas',
-        gestor: '/gestor/dashboard',
+      if (data.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single()
+
+        if (profileError || !profile) {
+          setError(`Perfil não encontrado (${profileError?.message ?? 'sem dados'}). Verifique as migrations.`)
+          setLoading(false)
+          return
+        }
+
+        const redirectMap: Record<string, string> = {
+          estudante: '/estudante/dashboard',
+          professor: '/professor/turmas',
+          gestor: '/gestor/dashboard',
+        }
+        window.location.href = redirectMap[profile.role] ?? '/'
+        return
       }
-      router.push(redirectMap[profile.role] ?? '/')
-      router.refresh()
-      return
+    } catch (err) {
+      setError(`Erro inesperado: ${err instanceof Error ? err.message : String(err)}`)
     }
 
     setLoading(false)
