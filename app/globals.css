@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #1A56DB;
+  --secondary: #0EA5E9;
+  --accent: #F59E0B;
+  --success: #10B981;
+  --background: #F4F7FF;
+  --foreground: #0D1B3E;
+}
+
+body {
+  background-color: #F4F7FF;
+  color: #0D1B3E;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Animação de pulsação para XP */
+@keyframes xp-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.xp-gained {
+  animation: xp-pulse 0.5s ease-in-out;
+}
+
+/* Trilha visual */
+.trail-connector {
+  width: 2px;
+  background: linear-gradient(to bottom, #1A56DB, #0EA5E9);
+}
