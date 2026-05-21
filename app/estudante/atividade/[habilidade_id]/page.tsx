@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { ArrowLeft, CheckCircle, AlertCircle, Trophy, RefreshCw } from 'lucide-react'
+import { ArrowLeft, CheckCircle, AlertCircle, Trophy, ChevronRight } from 'lucide-react'
 import type { Questao, Habilidade, Gabarito, TrilhaHabilidade, Insignia } from '@/lib/types/database'
 
 type ActivityStep = 'loading' | 'quiz' | 'result' | 'insignia'
@@ -13,7 +13,6 @@ interface QuestaoLocal extends Questao {
   habilidade: Habilidade
 }
 
-const PASSING_RATIO = 0.75
 const TOTAL_QUESTIONS = 5
 
 export default function AtividadePage() {
@@ -130,7 +129,6 @@ export default function AtividadePage() {
 
     const acertos = questoes.filter((q) => respostas[q.id] === q.gabarito).length
     setAcertosFinal(acertos)
-    const passou = questoes.length > 0 && acertos / questoes.length >= PASSING_RATIO
 
     function xpPorNivel(n: number) {
       if (n <= 3) return 100
@@ -138,17 +136,20 @@ export default function AtividadePage() {
       return 200
     }
 
-    const xp = passou && trilhaHabilidade.xp_conquistado === 0
-      ? xpPorNivel(habilidade.nivel_escala_saeb)
+    // XP proporcional ao desempenho, concedido apenas na primeira vez
+    const xpBase = xpPorNivel(habilidade.nivel_escala_saeb)
+    const pctAcerto = questoes.length > 0 ? acertos / questoes.length : 0
+    const xp = trilhaHabilidade.xp_conquistado === 0
+      ? Math.round(xpBase * pctAcerto)
       : 0
 
     setXpGanho(xp)
 
-    // Atualizar trilha_habilidade
+    // Sempre conclui a habilidade — sem barreira de aprovação
     await supabase
       .from('trilha_habilidades')
       .update({
-        status: passou ? 'concluida' : 'em_andamento',
+        status: 'concluida',
         tentativas: trilhaHabilidade.tentativas + 1,
         acertos: trilhaHabilidade.acertos + acertos,
         xp_conquistado: trilhaHabilidade.xp_conquistado + xp,
@@ -173,7 +174,7 @@ export default function AtividadePage() {
           .eq('trilha_id', trilha.id)
 
         const todasConcluidas = todasTH?.every((th: { id: string; status: string }) =>
-          th.id === trilhaHabilidade.id ? passou : th.status === 'concluida'
+          th.id === trilhaHabilidade.id ? true : th.status === 'concluida'
         )
 
         await supabase
@@ -301,50 +302,50 @@ export default function AtividadePage() {
 
   // Resultado
   if (step === 'result') {
-    const passou = questoes.length > 0 && acertosFinal / questoes.length >= PASSING_RATIO
-    const totalReal = questoes.length
-    const minAcertos = Math.ceil(totalReal * PASSING_RATIO)
+    const total = questoes.length
+    const pct = total > 0 ? Math.round((acertosFinal / total) * 100) : 0
+    const emoji = pct >= 80 ? '🎉' : pct >= 60 ? '😊' : pct >= 40 ? '💪' : '📚'
+    const msg =
+      pct >= 80 ? 'Excelente desempenho!' :
+      pct >= 60 ? 'Bom trabalho! Continue assim.' :
+      pct >= 40 ? 'Você está progredindo!' :
+      'Continue praticando, você vai melhorar!'
+
     return (
       <div className="max-w-lg mx-auto">
-        <div className={`rounded-2xl border-2 p-8 text-center ${passou ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-200'}`}>
-          <div className="text-5xl mb-4">{passou ? '🎉' : '💪'}</div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            {passou ? 'Habilidade concluída!' : 'Quase lá!'}
-          </h2>
-          <div className="flex items-center justify-center gap-2 text-4xl font-extrabold my-4">
-            <span className={passou ? 'text-success' : 'text-red-500'}>{acertosFinal}</span>
+        <div className="bg-white rounded-2xl border-2 border-primary/30 p-8 text-center">
+          <div className="text-5xl mb-3">{emoji}</div>
+          <h2 className="text-2xl font-bold text-foreground mb-1">Habilidade concluída!</h2>
+          <p className="text-gray-500 text-sm mb-5">{msg}</p>
+
+          <div className="flex items-center justify-center gap-2 text-4xl font-extrabold mb-2">
+            <span className="text-primary">{acertosFinal}</span>
             <span className="text-gray-300">/</span>
-            <span className="text-gray-400">{totalReal}</span>
+            <span className="text-gray-400">{total}</span>
           </div>
-          <p className="text-gray-500 text-sm mb-2">
-            {passou
-              ? `Você acertou ${acertosFinal} de ${totalReal} questões. Excelente!`
-              : `Você precisa de ${minAcertos} acertos (75%) para concluir. Tente novamente!`}
-          </p>
+          <p className="text-xs text-gray-400 mb-4">{pct}% de aproveitamento</p>
+
+          {/* Barra de desempenho */}
+          <div className="h-3 bg-gray-100 rounded-full overflow-hidden mb-5">
+            <div
+              className="h-3 rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-700"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+
           {xpGanho > 0 && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 inline-block mt-2 mb-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 inline-block mb-5">
               <span className="font-bold text-accent">+{xpGanho} XP</span> conquistados!
             </div>
           )}
 
-          <div className="space-y-3 mt-6">
-            {!passou && (
-              <button
-                onClick={handleRetry}
-                className="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:bg-green-800 transition-colors"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Tentar novamente
-              </button>
-            )}
-            <Link
-              href={`/estudante/trilha/${habilidade?.disciplina}`}
-              className="w-full flex items-center justify-center gap-2 bg-gray-100 text-foreground py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Voltar para a trilha
-            </Link>
-          </div>
+          <Link
+            href={`/estudante/trilha/${habilidade?.disciplina}`}
+            className="w-full flex items-center justify-center gap-2 bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-green-800 transition-colors"
+          >
+            Continuar trilha
+            <ChevronRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     )
@@ -389,7 +390,7 @@ export default function AtividadePage() {
             Questão {currentIndex + 1} de {questoes.length}
           </span>
           <span className="text-xs text-gray-400">
-            Precisa de 75% de acertos para concluir
+            {acertosFinal > 0 ? `${acertosFinal} acerto${acertosFinal > 1 ? 's' : ''} até agora` : `${questoes.length} questões`}
           </span>
         </div>
         <div className="flex gap-1.5">
