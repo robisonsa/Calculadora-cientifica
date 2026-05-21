@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { MapPin, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -61,9 +62,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-3 mb-4">
-            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-3xl shadow-lg">
-              📍
-            </div>
+            <Image src="/logo.svg" alt="GPS Logo" width={72} height={80} className="drop-shadow-md" />
           </Link>
           <h1 className="text-2xl font-bold text-foreground">Bem-vindo ao GPS</h1>
           <p className="text-gray-500 mt-1">Entre com suas credenciais para continuar</p>
@@ -136,7 +135,7 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  <MapPin className="w-4 h-4" />
+                  <Image src="/logo.svg" alt="" width={18} height={20} className="brightness-0 invert" />
                   Entrar no GPS
                 </>
               )}

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { MapPin, BookOpen, ChevronRight, Star, Users, TrendingUp } from 'lucide-react'
+import { BookOpen, ChevronRight, Star, Users, TrendingUp } from 'lucide-react'
 
 export default function LandingPage() {
   return (
@@ -221,7 +221,7 @@ export default function LandingPage() {
             href="/login"
             className="bg-accent text-foreground px-10 py-4 rounded-xl font-bold text-lg hover:bg-orange-500 transition-colors shadow-lg inline-flex items-center gap-2"
           >
-            <MapPin className="w-5 h-5" />
+            <Image src="/logo.svg" alt="" width={22} height={24} />
             Iniciar Diagnóstico
           </Link>
         </div>
@@ -230,9 +230,10 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-foreground text-white/60 py-8 px-4 text-center text-sm">
         <div className="max-w-4xl mx-auto">
-          <p className="font-semibold text-white mb-1">
-            📍 GPS — Gerenciador de Preparação para o SAEB/SAESE
-          </p>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Image src="/logo.svg" alt="GPS Logo" width={28} height={31} className="brightness-0 invert opacity-80" />
+            <p className="font-semibold text-white">GPS — Gerenciador de Preparação para o SAEB/SAESE</p>
+          </div>
           <p>Centro de Excelência Governador Lourival Baptista — Porto da Folha, SE</p>
           <p className="mt-2 text-white/40">Hackathon Escolar CEGLB 2026 · Desenvolvido com Next.js + Supabase</p>
         </div>
