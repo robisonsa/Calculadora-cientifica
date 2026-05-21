@@ -314,7 +314,7 @@ UPDATE public.profiles SET turma_id = turma_2a_id
 WHERE id IN (joao_id, maria_id, pedro_id);
 
 -- Vincula professor às turmas
-UPDATE public.turmas SET professor_id = professor_id
+UPDATE public.turmas SET professor_id = (SELECT id FROM auth.users WHERE email = 'robison@gps.demo')
 WHERE id IN (turma_1a_id, turma_2a_id, turma_3a_id);
 
 -- ===== 7. SEQUÊNCIAS DIDÁTICAS =====
