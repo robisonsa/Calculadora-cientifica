@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { MapPin, LogOut, Home, BookOpen, Users, BarChart2, Map, Award } from 'lucide-react'
+import { LogOut, Home, BookOpen, Users, BarChart2, Map, Award } from 'lucide-react'
 import type { UserRole } from '@/lib/types/database'
 
 interface NavbarProps {
@@ -37,9 +38,9 @@ const roleLabel: Record<UserRole, string> = {
 }
 
 const roleColor: Record<UserRole, string> = {
-  estudante: 'text-blue-600 bg-blue-50',
-  professor: 'text-green-600 bg-green-50',
-  gestor: 'text-purple-600 bg-purple-50',
+  estudante: 'text-secondary bg-blue-50',
+  professor: 'text-primary bg-green-50',
+  gestor: 'text-orange-600 bg-orange-50',
 }
 
 export function Navbar({ role, nome }: NavbarProps) {
@@ -54,13 +55,11 @@ export function Navbar({ role, nome }: NavbarProps) {
   }
 
   return (
-    <header className="bg-white border-b border-blue-100 sticky top-0 z-50 shadow-sm">
+    <header className="bg-white border-b border-green-100 sticky top-0 z-50 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-xl shadow-sm">
-            📍
-          </div>
+          <Image src="/logo.svg" alt="GPS Logo" width={36} height={40} className="drop-shadow-sm" />
           <div>
             <span className="font-bold text-foreground text-base">GPS</span>
             <span className="text-xs text-gray-400 block -mt-0.5">CEGLB</span>
@@ -76,7 +75,7 @@ export function Navbar({ role, nome }: NavbarProps) {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 pathname.startsWith(link.href)
                   ? 'bg-primary text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-gray-600 hover:bg-green-50'
               }`}
             >
               {link.icon}

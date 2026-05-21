@@ -161,7 +161,7 @@ function TrilhaCard({
         </div>
         <Link
           href="/estudante/diagnostico"
-          className="flex items-center gap-1.5 text-sm bg-primary text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-semibold"
+          className="flex items-center gap-1.5 text-sm bg-primary text-white px-4 py-2 rounded-xl hover:bg-green-800 transition-colors font-semibold"
         >
           <Plus className="w-4 h-4" />
           Fazer diagnóstico
@@ -196,7 +196,7 @@ function TrilhaCard({
 
       <Link
         href={`/estudante/trilha/${disciplina}`}
-        className="w-full flex items-center justify-center gap-1.5 text-sm bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-blue-700 transition-colors font-semibold"
+        className="w-full flex items-center justify-center gap-1.5 text-sm bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-green-800 transition-colors font-semibold"
       >
         {pct === 100 ? 'Ver trilha concluída' : 'Continuar trilha'}
         <ChevronRight className="w-4 h-4" />

@@ -78,7 +78,7 @@ export function HabilidadeCard({ trilhaHabilidade, index }: HabilidadeCardProps)
           {status !== 'concluida' && (
             <Link
               href={`/estudante/atividade/${trilhaHabilidade.habilidade_id}`}
-              className="flex items-center gap-1 text-xs bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+              className="flex items-center gap-1 text-xs bg-primary text-white px-3 py-1.5 rounded-lg hover:bg-green-800 transition-colors font-semibold"
             >
               {status === 'em_andamento' ? 'Continuar' : 'Iniciar'}
               <ChevronRight className="w-3 h-3" />

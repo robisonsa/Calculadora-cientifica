@@ -329,7 +329,7 @@ export default function AtividadePage() {
             {!passou && (
               <button
                 onClick={handleRetry}
-                className="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold hover:bg-green-800 transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 Tentar novamente
@@ -462,14 +462,14 @@ export default function AtividadePage() {
         <button
           onClick={handleConfirmAnswer}
           disabled={!selectedAnswer}
-          className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Confirmar resposta
         </button>
       ) : (
         <button
           onClick={handleNext}
-          className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+          className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-green-800 transition-colors"
         >
           {currentIndex < questoes.length - 1 ? 'Próxima questão →' : 'Ver resultado'}
         </button>

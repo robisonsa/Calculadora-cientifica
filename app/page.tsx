@@ -1,24 +1,23 @@
 import Link from 'next/link'
-import { MapPin, BookOpen, Calculator, Trophy, ChevronRight, Star, Users, TrendingUp } from 'lucide-react'
+import Image from 'next/image'
+import { MapPin, BookOpen, ChevronRight, Star, Users, TrendingUp } from 'lucide-react'
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-blue-100 sticky top-0 z-50 shadow-sm">
+      <header className="bg-white border-b border-green-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-xl shadow-md">
-              📍
-            </div>
+            <Image src="/logo.svg" alt="GPS Logo" width={40} height={44} className="drop-shadow-sm" />
             <div>
               <span className="text-xl font-bold text-foreground">GPS</span>
-              <span className="text-xs text-blue-600 block -mt-1">CEGLB · Porto da Folha</span>
+              <span className="text-xs text-primary block -mt-1">CEGLB · Porto da Folha</span>
             </div>
           </div>
           <Link
             href="/login"
-            className="bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+            className="bg-primary text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-green-800 transition-colors shadow-sm"
           >
             Entrar
           </Link>
@@ -26,7 +25,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary via-blue-600 to-secondary text-white py-20 px-4">
+      <section className="bg-gradient-to-br from-primary via-green-700 to-secondary text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-4 py-1.5 rounded-full text-sm font-medium mb-6">
             <Star className="w-4 h-4 text-accent" fill="currentColor" />
@@ -36,14 +35,14 @@ export default function LandingPage() {
             Sua rota para o<br />
             <span className="text-accent">SAEB 2025</span>
           </h1>
-          <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto mb-10">
+          <p className="text-lg md:text-xl text-green-100 max-w-2xl mx-auto mb-10">
             Diagnóstico inteligente, trilhas personalizadas e gamificação para você ir mais longe
             no SAEB/SAESE. Aprenda no seu ritmo, conquiste insígnias, alcance o topo.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/login"
-              className="bg-accent text-foreground px-8 py-4 rounded-xl font-bold text-lg hover:bg-yellow-400 transition-colors shadow-lg flex items-center justify-center gap-2"
+              className="bg-accent text-foreground px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-500 transition-colors shadow-lg flex items-center justify-center gap-2"
             >
               Começar Agora <ChevronRight className="w-5 h-5" />
             </Link>
@@ -58,7 +57,7 @@ export default function LandingPage() {
       </section>
 
       {/* Stats */}
-      <section className="bg-white border-b border-blue-100 py-8 px-4">
+      <section className="bg-white border-b border-green-100 py-8 px-4">
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-6 text-center">
           {[
             { value: '16', label: 'Habilidades SAEB', icon: '🎯' },
@@ -131,9 +130,9 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                icon: <BookOpen className="w-8 h-8 text-blue-600" />,
+                icon: <BookOpen className="w-8 h-8 text-white" />,
                 title: 'Estudantes',
-                color: 'bg-blue-600',
+                color: 'bg-secondary',
                 items: [
                   'Diagnóstico personalizado',
                   'Trilha adaptada ao seu nível',
@@ -142,9 +141,9 @@ export default function LandingPage() {
                 ],
               },
               {
-                icon: <Users className="w-8 h-8 text-green-600" />,
+                icon: <Users className="w-8 h-8 text-white" />,
                 title: 'Professores',
-                color: 'bg-green-600',
+                color: 'bg-primary',
                 items: [
                   'Painel de turmas em tempo real',
                   'Relatório individual por estudante',
@@ -153,9 +152,9 @@ export default function LandingPage() {
                 ],
               },
               {
-                icon: <TrendingUp className="w-8 h-8 text-purple-600" />,
+                icon: <TrendingUp className="w-8 h-8 text-white" />,
                 title: 'Gestores',
-                color: 'bg-purple-600',
+                color: 'bg-accent',
                 items: [
                   'Dashboard macro da escola',
                   'Ranking de turmas por avanço',
@@ -215,12 +214,12 @@ export default function LandingPage() {
       <section className="bg-gradient-to-r from-primary to-secondary py-16 px-4 text-white text-center">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl font-bold mb-4">Pronto para traçar sua rota?</h2>
-          <p className="text-blue-100 mb-8 text-lg">
+          <p className="text-green-100 mb-8 text-lg">
             Entre com suas credenciais do CEGLB e comece seu diagnóstico agora mesmo.
           </p>
           <Link
             href="/login"
-            className="bg-accent text-foreground px-10 py-4 rounded-xl font-bold text-lg hover:bg-yellow-400 transition-colors shadow-lg inline-flex items-center gap-2"
+            className="bg-accent text-foreground px-10 py-4 rounded-xl font-bold text-lg hover:bg-orange-500 transition-colors shadow-lg inline-flex items-center gap-2"
           >
             <MapPin className="w-5 h-5" />
             Iniciar Diagnóstico

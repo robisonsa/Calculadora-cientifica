@@ -29,7 +29,7 @@ export default async function TrilhaPage({ params }: { params: { disciplina: str
         <div className="text-5xl mb-4">🗺️</div>
         <h2 className="text-xl font-bold text-foreground mb-2">Trilha não encontrada</h2>
         <p className="text-gray-500 mb-6">Você ainda não realizou o diagnóstico de {disc === 'lp' ? 'Língua Portuguesa' : 'Matemática'}.</p>
-        <Link href="/estudante/diagnostico" className="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+        <Link href="/estudante/diagnostico" className="bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-800 transition-colors">
           Fazer diagnóstico
         </Link>
       </div>

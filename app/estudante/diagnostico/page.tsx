@@ -392,7 +392,7 @@ export default function DiagnosticoPage() {
           <button
             onClick={handleConfirmAnswer}
             disabled={!selectedAnswer}
-            className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Confirmar resposta
           </button>
@@ -400,7 +400,7 @@ export default function DiagnosticoPage() {
           <button
             onClick={handleNext}
             disabled={loading}
-            className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-green-800 transition-colors flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -439,7 +439,7 @@ export default function DiagnosticoPage() {
           </button>
           <button
             onClick={() => router.push('/estudante/dashboard')}
-            className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors"
+            className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-green-800 transition-colors"
           >
             Ver minha trilha
           </button>

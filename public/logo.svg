@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 132" fill="none">
+  <!-- Left hemisphere (blue) -->
+  <path d="M60 34 C60 34 40 30 28 42 C16 54 15 72 20 86 C25 100 38 108 60 107 Z"
+        fill="#7BC1D8" stroke="#1A3A5C" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Left folds -->
+  <path d="M32 52 C26 56 22 64 24 72" stroke="#1A3A5C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M20 84 C22 90 28 96 36 98" stroke="#1A3A5C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M24 68 C22 72 22 78 24 82" stroke="#1A3A5C" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+  <!-- Right hemisphere (green) -->
+  <path d="M60 34 C60 34 80 30 92 42 C104 54 105 72 100 86 C95 100 82 108 60 107 Z"
+        fill="#7DC47A" stroke="#1A3A5C" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Right folds -->
+  <path d="M88 52 C94 56 98 64 96 72" stroke="#1A3A5C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M100 84 C98 90 92 96 84 98" stroke="#1A3A5C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M96 68 C98 72 98 78 96 82" stroke="#1A3A5C" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+  <!-- Center divider -->
+  <path d="M60 34 C58 55 58 85 60 107" stroke="#1A3A5C" stroke-width="2.5" fill="none"/>
+
+  <!-- Brain stem -->
+  <rect x="52" y="107" width="16" height="10" rx="5" fill="#9BADB8" stroke="#1A3A5C" stroke-width="3"/>
+
+  <!-- Cerebellum (orange) -->
+  <ellipse cx="60" cy="122" rx="26" ry="14" fill="#F5A040" stroke="#1A3A5C" stroke-width="3.5"/>
+  <!-- Cerebellum stripes -->
+  <path d="M46 119 C52 122 58 123 65 122" stroke="#1A3A5C" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M44 125 C51 128 58 129 66 127" stroke="#1A3A5C" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+  <!-- GPS Pin -->
+  <path d="M60 2 C51 2 43 10 43 19 C43 31 60 48 60 48 C60 48 77 31 77 19 C77 10 69 2 60 2 Z"
+        fill="#C82828" stroke="#1A3A5C" stroke-width="3.5"/>
+  <circle cx="60" cy="19" r="7" fill="white"/>
+</svg>
