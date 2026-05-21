@@ -13,7 +13,7 @@ interface QuestaoLocal extends Questao {
   habilidade: Habilidade
 }
 
-const PASSING_SCORE = 4
+const PASSING_RATIO = 0.75
 const TOTAL_QUESTIONS = 5
 
 export default function AtividadePage() {
@@ -130,7 +130,7 @@ export default function AtividadePage() {
 
     const acertos = questoes.filter((q) => respostas[q.id] === q.gabarito).length
     setAcertosFinal(acertos)
-    const passou = acertos >= PASSING_SCORE
+    const passou = questoes.length > 0 && acertos / questoes.length >= PASSING_RATIO
 
     function xpPorNivel(n: number) {
       if (n <= 3) return 100
@@ -301,7 +301,9 @@ export default function AtividadePage() {
 
   // Resultado
   if (step === 'result') {
-    const passou = acertosFinal >= PASSING_SCORE
+    const passou = questoes.length > 0 && acertosFinal / questoes.length >= PASSING_RATIO
+    const totalReal = questoes.length
+    const minAcertos = Math.ceil(totalReal * PASSING_RATIO)
     return (
       <div className="max-w-lg mx-auto">
         <div className={`rounded-2xl border-2 p-8 text-center ${passou ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-200'}`}>
@@ -312,12 +314,12 @@ export default function AtividadePage() {
           <div className="flex items-center justify-center gap-2 text-4xl font-extrabold my-4">
             <span className={passou ? 'text-success' : 'text-red-500'}>{acertosFinal}</span>
             <span className="text-gray-300">/</span>
-            <span className="text-gray-400">{TOTAL_QUESTIONS}</span>
+            <span className="text-gray-400">{totalReal}</span>
           </div>
           <p className="text-gray-500 text-sm mb-2">
             {passou
-              ? `Você acertou ${acertosFinal} de ${TOTAL_QUESTIONS} questões. Excelente!`
-              : `Você precisa de ${PASSING_SCORE} acertos para concluir. Tente novamente!`}
+              ? `Você acertou ${acertosFinal} de ${totalReal} questões. Excelente!`
+              : `Você precisa de ${minAcertos} acertos (75%) para concluir. Tente novamente!`}
           </p>
           {xpGanho > 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2 inline-block mt-2 mb-4">
@@ -387,7 +389,7 @@ export default function AtividadePage() {
             Questão {currentIndex + 1} de {questoes.length}
           </span>
           <span className="text-xs text-gray-400">
-            Precisas de {PASSING_SCORE}/{TOTAL_QUESTIONS} para concluir
+            Precisa de 75% de acertos para concluir
           </span>
         </div>
         <div className="flex gap-1.5">

@@ -3,13 +3,21 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { BookOpen, Calculator, ChevronRight, CheckCircle, AlertCircle } from 'lucide-react'
+import { ChevronRight, CheckCircle, AlertCircle, BookOpen, Calculator, Zap, Target } from 'lucide-react'
 import type { Questao, Habilidade, Gabarito, Disciplina } from '@/lib/types/database'
 
 type Step = 'choose' | 'quiz' | 'done'
 
 interface QuestaoComHabilidade extends Questao {
   habilidade: Habilidade
+}
+
+interface ResultadoDiag {
+  acertos: number
+  total: number
+  nivel: number
+  habilidadesLacuna: { codigo: string; descricao: string }[]
+  disciplina: Disciplina
 }
 
 export default function DiagnosticoPage() {
@@ -24,19 +32,18 @@ export default function DiagnosticoPage() {
   const [loading, setLoading] = useState(false)
   const [diagnosticoId, setDiagnosticoId] = useState<string | null>(null)
   const [jaFeito, setJaFeito] = useState<Disciplina[]>([])
+  const [resultado, setResultado] = useState<ResultadoDiag | null>(null)
 
   useEffect(() => {
     async function checkDiagnosticos() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-
       const { data } = await supabase
         .from('diagnosticos')
         .select('disciplina')
         .eq('estudante_id', user.id)
         .eq('concluido', true)
-
       if (data) setJaFeito(data.map((d) => d.disciplina as Disciplina))
     }
     checkDiagnosticos()
@@ -62,7 +69,6 @@ export default function DiagnosticoPage() {
       return
     }
 
-    // Buscar habilidades por disciplina e ano escolar
     const { data: habilidades } = await supabase
       .from('habilidades')
       .select('*')
@@ -75,7 +81,6 @@ export default function DiagnosticoPage() {
       return
     }
 
-    // Agrupar por eixo e pegar até 5 questões por eixo (total ~20)
     const eixos = [...new Set(habilidades.map((h) => h.eixo))]
     const questoesSelecionadas: QuestaoComHabilidade[] = []
 
@@ -87,7 +92,6 @@ export default function DiagnosticoPage() {
           .select('*')
           .eq('habilidade_id', hab.id)
           .limit(2)
-
         if (questoesHab) {
           questoesSelecionadas.push(...questoesHab.map((q) => ({ ...q, habilidade: hab })))
         }
@@ -97,7 +101,6 @@ export default function DiagnosticoPage() {
 
     const questoesFinal = questoesSelecionadas.slice(0, 20)
 
-    // Criar diagnóstico
     const { data: diag } = await supabase
       .from('diagnosticos')
       .insert({
@@ -109,10 +112,7 @@ export default function DiagnosticoPage() {
       .select()
       .single()
 
-    if (!diag) {
-      setLoading(false)
-      return
-    }
+    if (!diag) { setLoading(false); return }
 
     setDiagnosticoId(diag.id)
     setQuestoes(questoesFinal)
@@ -147,14 +147,13 @@ export default function DiagnosticoPage() {
   }
 
   async function finalizarDiagnostico() {
-    if (!diagnosticoId) return
+    if (!diagnosticoId || !disciplina) return
     setLoading(true)
 
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // Salvar respostas
     const respostasArray = questoes.map((q) => ({
       diagnostico_id: diagnosticoId,
       questao_id: q.id,
@@ -165,23 +164,51 @@ export default function DiagnosticoPage() {
 
     await supabase.from('respostas_diagnostico').insert(respostasArray)
 
-    // Calcular nível identificado
     const acertosTotal = respostasArray.filter((r) => r.correta).length
     const percentual = acertosTotal / questoes.length
+
+    // Nível SAEB identificado (1–9) baseado no percentual de acertos
     let nivel = 2
     if (percentual >= 0.8) nivel = 7
     else if (percentual >= 0.6) nivel = 5
     else if (percentual >= 0.4) nivel = 4
     else if (percentual >= 0.2) nivel = 3
 
-    // Atualizar diagnóstico
     await supabase
       .from('diagnosticos')
       .update({ concluido: true, nivel_identificado: nivel })
       .eq('id', diagnosticoId)
 
-    // Gerar trilha personalizada
-    await gerarTrilha(user.id, disciplina!, nivel, respostasArray, supabase)
+    // Identificar habilidades com lacuna (< 40% de acerto na habilidade)
+    const acertosPorHab: Record<string, { acertos: number; total: number }> = {}
+    for (const r of respostasArray) {
+      if (!acertosPorHab[r.habilidade_id]) acertosPorHab[r.habilidade_id] = { acertos: 0, total: 0 }
+      acertosPorHab[r.habilidade_id].total++
+      if (r.correta) acertosPorHab[r.habilidade_id].acertos++
+    }
+
+    const { data: todasHabilidades } = await supabase
+      .from('habilidades')
+      .select('*')
+      .eq('disciplina', disciplina)
+      .order('nivel_escala_saeb', { ascending: true })
+
+    const habilidadesLacuna = (todasHabilidades ?? []).filter((h) => {
+      const stats = acertosPorHab[h.id]
+      if (!stats) return true
+      return stats.acertos / stats.total < 0.4
+    })
+
+    // Gerar trilha
+    await gerarTrilha(user.id, disciplina, nivel, respostasArray, habilidadesLacuna, supabase)
+
+    setResultado({
+      acertos: acertosTotal,
+      total: questoes.length,
+      nivel,
+      habilidadesLacuna: habilidadesLacuna.map((h) => ({ codigo: h.codigo, descricao: h.descricao })),
+      disciplina,
+    })
 
     setStep('done')
     setLoading(false)
@@ -190,34 +217,11 @@ export default function DiagnosticoPage() {
   async function gerarTrilha(
     estudanteId: string,
     disc: Disciplina,
-    nivel: number,
-    respostasArray: { habilidade_id: string; correta: boolean }[],
+    _nivel: number,
+    _respostasArray: { habilidade_id: string; correta: boolean }[],
+    habilidadesLacuna: { id: string; nivel_escala_saeb: number }[],
     supabase: ReturnType<typeof createClient>
   ) {
-    // Identificar habilidades com < 40% de acerto
-    const acertosPorHabilidade: Record<string, { acertos: number; total: number }> = {}
-    for (const r of respostasArray) {
-      if (!acertosPorHabilidade[r.habilidade_id]) {
-        acertosPorHabilidade[r.habilidade_id] = { acertos: 0, total: 0 }
-      }
-      acertosPorHabilidade[r.habilidade_id].total++
-      if (r.correta) acertosPorHabilidade[r.habilidade_id].acertos++
-    }
-
-    const { data: habilidades } = await supabase
-      .from('habilidades')
-      .select('*')
-      .eq('disciplina', disc)
-      .order('nivel_escala_saeb', { ascending: true })
-
-    if (!habilidades) return
-
-    const habilidadesLacuna = habilidades.filter((h) => {
-      const stats = acertosPorHabilidade[h.id]
-      if (!stats) return true
-      return stats.acertos / stats.total < 0.4
-    })
-
     function xpPorNivel(n: number) {
       if (n <= 3) return 100
       if (n <= 6) return 150
@@ -228,36 +232,27 @@ export default function DiagnosticoPage() {
 
     const { data: trilha } = await supabase
       .from('trilhas')
-      .insert({
-        estudante_id: estudanteId,
-        disciplina: disc,
-        xp_total_possivel: xpTotal,
-        xp_acumulado: 0,
-      })
+      .insert({ estudante_id: estudanteId, disciplina: disc, xp_total_possivel: xpTotal, xp_acumulado: 0 })
       .select()
       .single()
 
     if (!trilha) return
 
-    const trilhaHabilidades = habilidadesLacuna.map((h) => ({
-      trilha_id: trilha.id,
-      habilidade_id: h.id,
-      status: 'nao_iniciada',
-    }))
-
-    if (trilhaHabilidades.length > 0) {
-      await supabase.from('trilha_habilidades').insert(trilhaHabilidades)
+    if (habilidadesLacuna.length > 0) {
+      await supabase.from('trilha_habilidades').insert(
+        habilidadesLacuna.map((h) => ({ trilha_id: trilha.id, habilidade_id: h.id, status: 'nao_iniciada' }))
+      )
     }
   }
 
-  // Render: escolha de disciplina
+  // ── Escolha de disciplina ──────────────────────────────────────────────────
   if (step === 'choose') {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-foreground">Diagnóstico Inicial</h1>
           <p className="text-gray-500 mt-2">
-            Escolha a disciplina para começar. O diagnóstico tem 20 questões e leva cerca de 20 minutos.
+            Escolha a disciplina. O diagnóstico tem até 20 questões e leva cerca de 20 minutos.
           </p>
         </div>
 
@@ -275,11 +270,7 @@ export default function DiagnosticoPage() {
                     : 'border-gray-200 bg-white hover:border-primary hover:shadow-md cursor-pointer'
                 }`}
               >
-                {feito && (
-                  <div className="absolute top-3 right-3">
-                    <CheckCircle className="w-5 h-5 text-success" />
-                  </div>
-                )}
+                {feito && <div className="absolute top-3 right-3"><CheckCircle className="w-5 h-5 text-success" /></div>}
                 <div className="text-4xl mb-3">{disc === 'lp' ? '📖' : '🔢'}</div>
                 <h3 className="text-lg font-bold text-foreground">
                   {disc === 'lp' ? 'Língua Portuguesa' : 'Matemática'}
@@ -314,7 +305,7 @@ export default function DiagnosticoPage() {
     )
   }
 
-  // Render: quiz
+  // ── Quiz ──────────────────────────────────────────────────────────────────
   if (step === 'quiz') {
     const questao = questoes[currentIndex]
     const isCorrect = selectedAnswer === questao?.gabarito
@@ -327,7 +318,6 @@ export default function DiagnosticoPage() {
 
     return (
       <div className="max-w-2xl mx-auto">
-        {/* Progresso */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-semibold text-gray-500">
@@ -345,17 +335,13 @@ export default function DiagnosticoPage() {
           </div>
         </div>
 
-        {/* Questão */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-4">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
             {questao?.habilidade?.descricao}
           </p>
-          <p className="text-foreground font-medium leading-relaxed text-base">
-            {questao?.enunciado}
-          </p>
+          <p className="text-foreground font-medium leading-relaxed text-base">{questao?.enunciado}</p>
         </div>
 
-        {/* Alternativas */}
         <div className="space-y-3 mb-6">
           {alternativas.map((alt) => {
             let classes = 'w-full text-left px-5 py-4 rounded-xl border-2 font-medium text-sm transition-all '
@@ -364,15 +350,10 @@ export default function DiagnosticoPage() {
                 ? 'border-primary bg-blue-50 text-primary'
                 : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 text-foreground'
             } else {
-              if (alt.key === questao.gabarito) {
-                classes += 'border-success bg-green-50 text-green-700'
-              } else if (alt.key === selectedAnswer && selectedAnswer !== questao.gabarito) {
-                classes += 'border-red-400 bg-red-50 text-red-600'
-              } else {
-                classes += 'border-gray-200 bg-white text-gray-400'
-              }
+              if (alt.key === questao.gabarito) classes += 'border-success bg-green-50 text-green-700'
+              else if (alt.key === selectedAnswer && selectedAnswer !== questao.gabarito) classes += 'border-red-400 bg-red-50 text-red-600'
+              else classes += 'border-gray-200 bg-white text-gray-400'
             }
-
             return (
               <button key={alt.key} onClick={() => handleSelectAnswer(alt.key)} className={classes}>
                 <span className="font-bold uppercase mr-3">{alt.key})</span>
@@ -382,7 +363,6 @@ export default function DiagnosticoPage() {
           })}
         </div>
 
-        {/* Feedback */}
         {showFeedback && (
           <div className={`p-4 rounded-xl mb-4 flex items-center gap-3 ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
             {isCorrect
@@ -394,7 +374,6 @@ export default function DiagnosticoPage() {
           </div>
         )}
 
-        {/* Botões */}
         {!showFeedback ? (
           <button
             onClick={handleConfirmAnswer}
@@ -410,17 +389,11 @@ export default function DiagnosticoPage() {
             className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-green-800 transition-colors flex items-center justify-center gap-2"
           >
             {loading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                Calculando...
-              </>
+              <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Calculando...</>
             ) : currentIndex < questoes.length - 1 ? (
-              <>
-                Próxima questão
-                <ChevronRight className="w-4 h-4" />
-              </>
+              <>Próxima questão <ChevronRight className="w-4 h-4" /></>
             ) : (
-              'Finalizar diagnóstico'
+              'Ver resultado'
             )}
           </button>
         )}
@@ -428,30 +401,117 @@ export default function DiagnosticoPage() {
     )
   }
 
-  // Render: concluído
-  return (
-    <div className="max-w-lg mx-auto text-center">
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10">
-        <div className="text-6xl mb-4">🎉</div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">Diagnóstico concluído!</h2>
-        <p className="text-gray-500 mb-6">
-          Sua trilha personalizada de {disciplina === 'lp' ? 'Língua Portuguesa' : 'Matemática'} foi gerada automaticamente com base no seu resultado.
-        </p>
+  // ── Resultado do diagnóstico ───────────────────────────────────────────────
+  if (step === 'done' && resultado) {
+    const pct = Math.round((resultado.acertos / resultado.total) * 100)
+    const discNome = resultado.disciplina === 'lp' ? 'Língua Portuguesa' : 'Matemática'
+    const discIcon = resultado.disciplina === 'lp' ? <BookOpen className="w-5 h-5" /> : <Calculator className="w-5 h-5" />
+
+    const nivelLabel = (n: number) => {
+      if (n >= 7) return { label: 'Avançado', cor: 'text-green-600', bg: 'bg-green-100' }
+      if (n >= 5) return { label: 'Intermediário', cor: 'text-blue-600', bg: 'bg-blue-100' }
+      if (n >= 4) return { label: 'Básico', cor: 'text-yellow-600', bg: 'bg-yellow-100' }
+      return { label: 'Abaixo do básico', cor: 'text-red-600', bg: 'bg-red-100' }
+    }
+    const lvl = nivelLabel(resultado.nivel)
+
+    return (
+      <div className="max-w-lg mx-auto space-y-4">
+        {/* Cabeçalho */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center">
+          <div className="text-5xl mb-3">{pct >= 60 ? '🎉' : '💪'}</div>
+          <h2 className="text-xl font-black text-foreground">Diagnóstico concluído!</h2>
+          <div className="flex items-center justify-center gap-1.5 mt-1 text-gray-500 text-sm">
+            {discIcon}
+            <span>{discNome}</span>
+          </div>
+        </div>
+
+        {/* Placar */}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Seu resultado</h3>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-3xl font-black text-foreground">{resultado.acertos}<span className="text-gray-300 text-xl">/{resultado.total}</span></div>
+              <div className="text-xs text-gray-500 mt-1">acertos</div>
+            </div>
+            <div>
+              <div className="text-3xl font-black text-primary">{pct}%</div>
+              <div className="text-xs text-gray-500 mt-1">aproveitamento</div>
+            </div>
+            <div>
+              <div className="text-3xl font-black text-secondary">{resultado.nivel}</div>
+              <div className="text-xs text-gray-500 mt-1">nível SAEB</div>
+            </div>
+          </div>
+          <div className="mt-4 text-center">
+            <span className={`text-xs font-bold px-3 py-1 rounded-full ${lvl.bg} ${lvl.cor}`}>
+              {lvl.label}
+            </span>
+          </div>
+          {/* Barra de progresso */}
+          <div className="mt-4">
+            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-3 rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-700"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Habilidades com lacuna */}
+        {resultado.habilidadesLacuna.length > 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Target className="w-4 h-4 text-accent" />
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                Trilha gerada — {resultado.habilidadesLacuna.length} habilidade{resultado.habilidadesLacuna.length > 1 ? 's' : ''} para praticar
+              </h3>
+            </div>
+            <ul className="space-y-2">
+              {resultado.habilidadesLacuna.slice(0, 6).map((h) => (
+                <li key={h.codigo} className="flex items-start gap-2 text-sm">
+                  <span className="shrink-0 text-[10px] font-black bg-blue-100 text-secondary px-1.5 py-0.5 rounded-md mt-0.5">{h.codigo}</span>
+                  <span className="text-gray-600 leading-snug">{h.descricao}</span>
+                </li>
+              ))}
+              {resultado.habilidadesLacuna.length > 6 && (
+                <li className="text-xs text-gray-400 pl-2">+ {resultado.habilidadesLacuna.length - 6} outras habilidades</li>
+              )}
+            </ul>
+            <div className="mt-3 flex items-center gap-1.5 text-xs text-gray-400">
+              <Zap className="w-3.5 h-3.5 text-accent" />
+              Sua trilha foi personalizada com base nessas lacunas.
+            </div>
+          </div>
+        )}
+
+        {resultado.habilidadesLacuna.length === 0 && (
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-5 text-center">
+            <div className="text-3xl mb-2">🏆</div>
+            <p className="font-bold text-green-700">Parabéns! Você domina todas as habilidades avaliadas!</p>
+          </div>
+        )}
+
+        {/* Ações */}
         <div className="space-y-3">
           <button
-            onClick={() => setStep('choose')}
-            className="w-full bg-gray-100 text-foreground py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+            onClick={() => router.push(`/estudante/trilha/${resultado.disciplina}`)}
+            className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-green-800 transition-colors"
           >
-            Fazer outro diagnóstico
+            Ir para minha trilha →
           </button>
           <button
-            onClick={() => router.push('/estudante/dashboard')}
-            className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-green-800 transition-colors"
+            onClick={() => { setResultado(null); setStep('choose') }}
+            className="w-full bg-gray-100 text-foreground py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
           >
-            Ver minha trilha
+            Fazer diagnóstico de outra disciplina
           </button>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  return null
 }
